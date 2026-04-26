@@ -1,2 +1,26 @@
-.vscode/
+# Build directory
+build/
+dist/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+main.cpp
+a.out
