@@ -1,2 +1,19 @@
+1)
+n -1
+Toggle all zeros to one and first 1 to zero, from right.
+
+2) 
 n & (n - 1)
 Unset Right Most set bit
+
+3)
+number & ~(1 << n)
+Clear nth bit
+
+4)
+number ^ (1 << n)
+Toggle nth bith
+
+5)
+number | (1 << n)
+Set nth bit
