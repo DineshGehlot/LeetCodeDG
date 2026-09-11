@@ -17,3 +17,8 @@ Toggle nth bith
 5)
 number | (1 << n)
 Set nth bit
+
+6)
+(addr1 ^ addr2) & (7) == 0
+If both have same misalignment with 64 bit boundary
+address are in byte units, so if want 8 byte aligned last 3 bit should be zero
