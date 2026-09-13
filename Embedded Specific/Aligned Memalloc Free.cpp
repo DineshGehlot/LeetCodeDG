@@ -6,29 +6,23 @@ may assume that the alignment is a power of 2 (1, 2, 4, 8, 16, ...).
 
 #include <iostream>
 #include <cstdint>
-#include <cstdlib>
 
 using namespace std;
 
 //void* myMalloc(int size, int PowerBitAlign) {
 void* myMalloc(size_t size, size_t alignment) {
-    // Allocote (Extra) = size + alignment + 4 byte (actual alignenment)
+    // Allocote (Extra) = size + alignment + size of address  (actual alignenment)
     // start from current allocated +4 byte
     // return next aligned
 
-    int n = size + alignment -1 + sizeof(uintptr_t);
-    int MASK = alignment -1; 
-    void *allocatedAddr = (void*)malloc(n);
-    uint8_t* temp = (uint8_t*) allocatedAddr + sizeof(uintptr_t);
-    do {
-        temp++;
-    }
-    while((uintptr_t)temp & (MASK));
+    size_t overhead = alignment -1 + sizeof(uintptr_t);
+    uint8_t *allocatedAddr = (uint8_t*)malloc(size + overhead);
+    void* aligned = (void*)((uintptr_t)(allocatedAddr + overhead) & ~(alignment - 1));
     
-    uintptr_t* temp2 = (uintptr_t*)(temp - sizeof(uintptr_t));
-    *temp2 = (uintptr_t)allocatedAddr;
+    uintptr_t* temp = (uintptr_t*)(aligned - sizeof(uintptr_t));
+    *temp = (uintptr_t)allocatedAddr;
     
-    return (void*)temp;
+    return (void*)aligned;
 }
 
 void myFree(void* addr) {
