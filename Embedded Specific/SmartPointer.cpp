@@ -47,8 +47,8 @@ class SmartPtr{
         
         // destructor
         ~SmartPtr() {
+            cout << "Inside destructor: refCount (before deletion) =" << *refCount <<endl;
             release();
-            cout << "Inside destructor: refCount =" << *refCount <<endl;
         }
         
         int getRefCount() {
