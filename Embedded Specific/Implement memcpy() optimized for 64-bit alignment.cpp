@@ -1,41 +1,41 @@
-/******************************************************************************
-Implement memcpy() optimized for 64-bit alignment
-*******************************************************************************/
-#include <iostream>
-#include <cstdint>
+// Implementation v2.0
+
+// Optimize memcpy() implementation for 64-bit alignment
+
+#include<cstdint>
+#include<iostream>
+#include<cstdlib>
+
 using namespace std;
 
-void myMemCpy(void *dest, const void* src, int size) {
- 
-    const uint8_t *src8 = (const uint8_t*)(src);
-    uint8_t *dest8 =  (uint8_t*)(dest);
-    
+#define cast64(a) reinterpret_cast<uintptr_t>(a)
 
-    if(((((uint64_t)dest8 ^ (uint64_t)src8)) & 7)==0) {
+void memcpy64(uint8_t* dest, const uint8_t* src, size_t n) {
 
-        while (size && ((uint64_t)dest8 & 7)) {
-            *dest8++ = *src8++;
-            size--;
-        }
-        
-        const uint64_t* src64 = (const uint64_t*)(src8);
-        uint64_t *dest64 = (uint64_t*)(dest8);
-        
-        while(size >= 8) {
-            *dest64++ = *src64++;
-            size -= 8;
-        }
-        src8 = (const uint8_t*)(src64);
-        dest8 =  (uint8_t*)(dest64);
+    constexpr int MASK = 7;
+    uint8_t* dest8 = reinterpret_cast<uint8_t*>(dest);
+    const uint8_t* src8 = reinterpret_cast<const uint8_t*>(src);
+
+    if(((cast64(dest8) ^ cast64(src8)) & MASK)==0) {
+       while(n && (cast64(dest8) & MASK)) {
+           *dest8++ = *src8++;
+           --n;
+       }
+       uint64_t* dest64 = reinterpret_cast<uint64_t *>(dest8);
+       const uint64_t* src64 = reinterpret_cast<const uint64_t *>(src8);
+       
+        while(n > 7) {
+           *dest64++ = *src64++;
+           n -=8;
+       }
+        dest8 = reinterpret_cast<uint8_t*>(dest64);
+        src8 = reinterpret_cast<const uint8_t*>(src64);
     }
-    
-    while (size)
-    {
-        *dest8++ = *src8++;
-        size--;  
+    while(n) {
+           *dest8++ = *src8++;
+           --n;
     }
 }
-
 
 int main()
 {
@@ -60,7 +60,7 @@ int main()
 
     cout << endl;
 
-    myMemCpy(dst, src, n);
+    memcpy64(dst, src, n);
 
     cout << "After memcpy:  ";
 
@@ -74,5 +74,3 @@ int main()
 
     return 0;
 }
-
-// Next memmove, what if they overlap
