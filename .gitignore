@@ -24,3 +24,5 @@ Makefile
 
 main.cpp
 a.out
+source.cpp
+source.exe
