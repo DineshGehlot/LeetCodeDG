@@ -5,7 +5,7 @@ Write a Memory-Mapped GPIO Driver
 The processor communicates with a GPIO peripheral through memory-mapped
 I/O registers.
 
-Your task is to implement a small GPIO driverthat can initialize a pin,
+Your task is to implement a small GPIO driver that can initialize a pin,
 configure it as an output, and set or clear its value.
 
 1. The hardware provides the following registers.
@@ -53,76 +53,62 @@ For this exercise, assume:
 #include <iostream>
 #include <cstdint>
 
-using namespace std;
-
 class memoryMappedGPIO {
-    private:
+private:
     enum REG {
-        GPIO_DIR    = 0x00,
-        GPIO_OUT    = 0x04,
-        GPIO_IN     = 0x08,
+    GPIO_DIR = 0x00,
+    GPIO_OUT = 0x04,
+    GPIO_IN  = 0x08
     };
+
+    volatile uint32_t* reg_dir = nullptr;
+    volatile uint32_t* reg_in = nullptr;
+    volatile uint32_t* reg_out = nullptr;
     
-    uintptr_t regBase;
-    volatile uint32_t *regDir, *regOut, *regIn;
+    static constexpr uint8_t MAX_PIN = 32;
     
+    bool initialized = false;
+
+public:
     bool gpio_init(uintptr_t base_addr) {
-        regBase = base_addr;
-        regDir = reinterpret_cast<volatile uint32_t*>(regBase + GPIO_DIR);
-        regOut = reinterpret_cast<volatile uint32_t*>(regBase + GPIO_OUT);
-        regIn = reinterpret_cast<volatile uint32_t*>(regBase + GPIO_IN);
-        return true;
+        if(0 == base_addr) return initialized = false;
+        reg_dir = reinterpret_cast<volatile uint32_t*>(base_addr);
+        reg_out = reinterpret_cast<volatile uint32_t*>(base_addr + GPIO_OUT);
+        reg_in  = reinterpret_cast<volatile uint32_t*>(base_addr + GPIO_IN);
+        
+        return initialized = true;
     }
     
-    bool isOutDir(uint8_t pin) {
-        return *regDir & (1<<pin);
-    }
-    
-    bool isValidPin(uint8_t pin){
-        if(pin > 31) {
-            cout << "Invalid Pin" <<endl;
-            return false;
-        }
-        return true;
-    }
-    
-    public:
-
-    memoryMappedGPIO(uintptr_t base_addr) {
-        gpio_init(base_addr);
-    }
-
     bool gpio_set_direction(uint8_t pin, bool output) {
-        if(!isValidPin(pin)) return false;
-        
-        uint32_t MASK = ~(1 << pin);
-        *regDir = (*regDir & MASK) | (output << pin);
-        
+        if(pin>=MAX_PIN || !initialized) return false;
+        const uint32_t MASK = 1U << pin;
+        if (output)
+            *reg_dir |= MASK;
+        else
+            *reg_dir &= ~MASK;
         return true;
     }
-
+    
     bool gpio_write(uint8_t pin, bool value) {
-        if(!isValidPin(pin)) return false;
+        if(pin>=MAX_PIN || !initialized) return false;
         
-        uint32_t MASK = ~(1 << pin);
-        if (isOutDir(pin))
-            *regOut = (*regOut & MASK) | (value << pin);
+        const uint32_t MASK = 1U << pin;
+        
+        if(0==(*reg_dir & MASK)) return false; // direction is input, 
+        
+        if (value)
+            *reg_out |= (1U << pin);
         else
-            *regIn = (*regIn & MASK) | (value << pin);
-        
+            *reg_out &= (~(1U << pin));
         return true;
     }
-
+    
     bool gpio_read(uint8_t pin, bool* value) {
-        if(!isValidPin(pin)) return false;
-        if(value == nullptr) {
-            cout << "Null Pointer" <<endl;
-            return false;
-        }
-        if (isOutDir(pin))
-            *value = *regOut & (1 << pin);
-        else
-            *value = *regIn & (1 << pin);
+        if(pin>=MAX_PIN || !initialized || !value) return false;
+        
+        // read regardless of direction
+        const uint32_t MASK = 1U << pin;
+        *value = (0U != (*reg_in & MASK));
         
         return true;
     }
@@ -131,7 +117,8 @@ class memoryMappedGPIO {
 int main() {
     uintptr_t base = reinterpret_cast<uintptr_t>(new uint8_t[12]);
     bool output;
-    memoryMappedGPIO *sensorGPIO = new memoryMappedGPIO(base);
+    memoryMappedGPIO *sensorGPIO = new memoryMappedGPIO;
+    sensorGPIO->gpio_init(base);
     sensorGPIO->gpio_set_direction(1,1);
     sensorGPIO->gpio_write(1,0);
     sensorGPIO->gpio_read(1,&output);
@@ -145,4 +132,3 @@ int main() {
     
     return 0;
 }
-
