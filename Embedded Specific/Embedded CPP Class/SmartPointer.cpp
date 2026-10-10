@@ -1,4 +1,17 @@
 /******************************************************************************
+Implement a custom template class SmartPtr<T> in C++ that behaves similarly to
+std::shared_ptr<T> by maintaining a reference count for a dynamically allocated
+object.
+
+Multiple smart pointer instances should be able to share ownership of the same
+object. The managed object must be deleted automatically when the last owning
+smart pointer is destroyed or releases its ownership.
+
+You must implement the reference-counting mechanism yourself. Do not use
+std::shared_ptr internally.
+*******************************************************************************/
+
+/******************************************************************************
 
 Smart Pointer 
 
@@ -39,11 +52,32 @@ class SmartPtr{
             
         }
         // copy constructor
-        SmartPtr(const SmartPtr& other): ptr(other.ptr) {
+        SmartPtr& operator=(const SmartPtr& other)
+        {
+            if (this == &other) return *this;
+        
+            release();
+        
+            ptr = other.ptr;
+            refCount = other.refCount;
+        
+            if (refCount) ++(*refCount);
+
+            return *this;
+        }
+        
+        // Assignment Operator=
+        SmartPtr& operator=(SmartPtr& other) {
+            if (this == &other) return *this;
+            
+            release();
+        
+            ptr = other.ptr;
             refCount = other.refCount;
             *refCount += 1; 
-            cout << "Inside copy constructor: refCount =" << *refCount <<endl;
-        } 
+            cout << "Inside Assignment operator: refCount =" << *refCount <<endl;
+            return *this;
+        }
         
         // destructor
         ~SmartPtr() {
@@ -68,9 +102,13 @@ int main()
         cout << s2.getRefCount() <<endl; // 2
         SmartPtr<int> s3 = new int(5);
         cout << s2.getRefCount() <<endl; // 1
+        
+        s3 = s1;
     
     }
     cout << s1.getRefCount() <<endl; //1
+    
+    
     
     return 0 ; 
     
