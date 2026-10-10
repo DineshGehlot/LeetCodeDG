@@ -18,3 +18,22 @@ public:
         return false;
     }
 };
+
+/* Also works:
+
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        if(!head) return false;
+        ListNode *slow = head, *fast = head->next;
+        while(slow && fast) {
+            if(slow == fast) return true;
+            slow = slow->next;
+            if (fast->next) fast = fast->next;
+            fast = fast->next;
+        }
+        return false;
+    }
+};
+
+*/
