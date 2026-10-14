@@ -16,3 +16,31 @@ public:
         return head;
     }
 };
+
+/*
+// Single iteration approach
+
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) 
+    {
+        ListNode *pre=nullptr, *first,*second;
+        first = second = head;
+        while(first)
+        {
+            --n;
+            first = first->next;
+            if(n < 0)
+            {
+                pre = second;
+                second = second->next;
+            }
+        }
+        
+        if(!pre) head = head->next;
+        else pre->next = second->next;
+        return head;
+    }
+};
+
+*/
