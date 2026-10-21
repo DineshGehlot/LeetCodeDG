@@ -1,0 +1,3 @@
+[submodule "PriorityEmbededQuestions"]
+	path = PriorityEmbededQuestions
+	url = git@github.com:DineshGehlot/PriorityEmbededQuestions.git
