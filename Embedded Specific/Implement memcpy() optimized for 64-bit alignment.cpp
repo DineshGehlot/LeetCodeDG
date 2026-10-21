@@ -8,23 +8,22 @@
 
 using namespace std;
 
-#define cast64(a) reinterpret_cast<uintptr_t>(a)
-
 void memcpy64(uint8_t* dest, const uint8_t* src, size_t n) {
 
-    constexpr int MASK = 7;
+    constexpr int ALIGN = 7;
     uint8_t* dest8 = reinterpret_cast<uint8_t*>(dest);
     const uint8_t* src8 = reinterpret_cast<const uint8_t*>(src);
 
-    if(((cast64(dest8) ^ cast64(src8)) & MASK)==0) {
-       while(n && (cast64(dest8) & MASK)) {
+   //if(((reinterpret_cast<uintptr_t>((dest8) ^ reinterpret_cast<uintptr_t>((src8)) & MASK)==0) {
+    if((reinterpret_cast<uintptr_t>(dest8) & ALIGN) == (reinterpret_cast<uintptr_t>(src8) & ALIGN)){
+       while(n && (reinterpret_cast<uintptr_t>(src8) & ALIGN)) {
            *dest8++ = *src8++;
            --n;
        }
        uint64_t* dest64 = reinterpret_cast<uint64_t *>(dest8);
        const uint64_t* src64 = reinterpret_cast<const uint64_t *>(src8);
        
-        while(n > 7) {
+        while(n > ALIGN) {
            *dest64++ = *src64++;
            n -=8;
        }
