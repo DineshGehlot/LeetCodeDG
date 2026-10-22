@@ -1,3 +1,26 @@
+/*
+Problem statement
+Implement a fixed-size memory pool that manages a statically allocated memory region. The pool contains 16 blocks, each 64 bytes.
+
+Implement these APIs:
+```
+#define POOL_BLOCK_SIZE 64
+#define POOL_BLOCK_COUNT 16
+
+void mempool_init(void);
+void *mempool_alloc(void);
+bool mempool_free(void *ptr);
+```
+Requirements
+1. No dynamic memory allocation (malloc, calloc, or free).
+2. mempool_alloc() returns a pointer to an available block, or NULL if the pool is exhausted.
+3. mempool_free() releases a previously allocated block.
+4. Reject invalid pointers, including pointers outside the pool and pointers that don't point to the beginning of a block.
+5. Detect double frees and return false.
+6. Returned blocks must satisfy the alignment requirements of the supported objects.
+7. Assume allocation and freeing may be called from multiple tasks. Explain how you would make the implementation thread-safe on an embedded target.
+*/
+
 #include <cstdint>
 #include <mutex>
 
