@@ -52,30 +52,20 @@ class SmartPtr{
             
         }
         // copy constructor
-        SmartPtr& operator=(const SmartPtr& other)
+        SmartPtr(const SmartPtr& other)
         {
-            if (this == &other) return *this;
-        
-            release();
-        
+            if (this == &other) return *this;        
             ptr = other.ptr;
-            refCount = other.refCount;
-        
+            refCount = other.refCount;        
             if (refCount) ++(*refCount);
-
-            return *this;
         }
         
         // Assignment Operator=
         SmartPtr& operator=(SmartPtr& other) {
-            if (this == &other) return *this;
-            
-            release();
-        
+            if (this == &other) return *this;        
             ptr = other.ptr;
-            refCount = other.refCount;
-            *refCount += 1; 
-            cout << "Inside Assignment operator: refCount =" << *refCount <<endl;
+            refCount = other.refCount;        
+            if (refCount) ++(*refCount);
             return *this;
         }
         
