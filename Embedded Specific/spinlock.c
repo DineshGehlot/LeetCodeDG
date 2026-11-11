@@ -11,8 +11,9 @@ void init() {
 }
 
 void lock() {
-    unsigned int FREE = 1;
+    unsigned int FREE;
     while(1) {
+        FREE = 1;
         if(atomic_compare_exchange_weak(&sig, &FREE, 0)) return;
     }
 }
