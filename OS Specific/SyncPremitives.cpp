@@ -54,3 +54,24 @@ int main()
 
     return 0;
 }
+/*
+Key Points:
+1. Use mutex for critical sections that need to be held for extended periods. (strict owernship needed)
+2. For producer consumer problem use semaphores. (No owernship needed).
+3. Never block while holding spinlock. Use IRQ masking if required. 
+4. Use atomic operations for simple shared data access. like spinlock internal lock.
+5. IRQ handler should have minimum code and should not block.
+6. Use sequence ordering of locks:
+    semaphore_acquire(current_task); // Acquire current semaphore first
+    mutex.lock(); // or priority inherited mutex LOCK
+    irq_disable(); // Or irq_contex_save();
+    spinlock_lock(&spinlock);
+    
+    // The critical section
+
+    spinlock_unlock(&spinlock);
+    irq_enable(); // Or irq_contex_restore();
+    mutex.unlock(); // or priority inherited mutex UNLOCK
+    semaphore_release(subsequrent_task); // Release subsequent task semaphore
+*/
+

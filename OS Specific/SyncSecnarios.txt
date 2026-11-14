@@ -1,0 +1,35 @@
+An SPI peripheral is shared by two tasks:
+
+Task A – High priority
+- Reads configuration data from an external SPI Flash.
+- Executes transactions periodically.
+- Latency-sensitive.
+Task B – Low priority
+- Writes diagnostic logs to the same SPI Flash.
+- Performs relatively long transactions.
+Additional details:
+- Both tasks use the same SPI controller.
+- A transaction consists of chip-select assertion, command, address, data transfer and chip-select deassertion.
+- SPI transfers use DMA.
+- DMA completion generates an interrupt.
+- Both tasks must be able to use the peripheral safely.
+
+
+Your task
+Answer these questions:
+1. Which synchronization primitive would you use to protect the SPI peripheral?
+2. How would you synchronize DMA completion with the requesting task?
+3. What happens if Task B acquires the SPI resource and Task A becomes ready?
+4. How would you prevent priority inversion?
+5. Can you use a binary semaphore for both resource ownership and DMA completion?
+
+------------------------------------------
+Answers:
+1. Mutex
+2. Binary semaphore
+   I'll use semaphore "dma_done".
+   The requesting task will request "DMA transfer" and will suspend on dma_done semaphore.
+   From IRQ context of DMA completion, I'll release dma_done semaphore.
+3. Task A will wait until Task B releases the SPI resource. Possible chances of priority inversion.
+4. Priority inheritance protocol. (Boost the priority of Task B when it acquires the mutex)
+5. No resource ownership needs strict ownership, have to use mutex. Other anyother task releasing binary semaphore may break critical section lock.
